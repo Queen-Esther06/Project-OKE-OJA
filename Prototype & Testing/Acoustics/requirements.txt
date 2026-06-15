@@ -1,6 +1,6 @@
 # Test framework
 pytest
 
-# Build dependencies for ggwave C++ extension
+# Build dependencies for ggwave C++, and pyaudio extensions
 # These are needed for the initial build only
 # Cython, wheel, setuptools will be installed by setup_local_deps.py if needed
