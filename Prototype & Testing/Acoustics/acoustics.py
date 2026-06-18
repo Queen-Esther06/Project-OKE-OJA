@@ -1,6 +1,10 @@
-import ggwave
-import pyaudio
+import runpy
 
+try:
+    import ggwave
+    import pyaudio
+except ImportError:
+    runpy.run_path("setup_local_deps.py")
 
 class acoustics():
     def __init__(self):
@@ -12,7 +16,7 @@ class acoustics():
 
     def send(self):
         with open ("ledger", "r") as message:
-            waveform = ggwave.encode(message, protocolId = 1, volume = 20)
+            waveform = ggwave.encode(message.read().encode('utf-8'), protocolId = 1, volume = 20)
 
             print("Transmitting ledgers waveform...")
             stream = self.audio.open(format=pyaudio.paFloat32, channels=1, rate=48000, output=True, frames_per_buffer=1024)
