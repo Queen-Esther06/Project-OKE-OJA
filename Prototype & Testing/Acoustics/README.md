@@ -1,68 +1,77 @@
 # Oke Oja - Acoustics & ggwave Integration
 
-This project includes the ggwave C++ library (for acoustic data transmission) vendored in `vendor/ggwave` so that anyone cloning this repo can build and test without needing to install ggwave system-wide.
+This directory implements a simple acoustic data transmitter/receiver using the vendored `ggwave` library and `pyaudio`.
 
 ## Quick Start
 
-### 1. Install test dependencies
+### 1. Install Python dependencies
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 2. Build ggwave (cross-OS: Windows, macOS, Linux)
+### 2. Build the vendored ggwave extension
 ```bash
 python setup_local_deps.py
 ```
 
 This script will:
-- Install build tools (wheel, setuptools, Cython)
-- Compile the ggwave C++ library with Python bindings
-- Install it into your Python environment
+- install required build tools and Python packaging support
+- compile the vendored `ggwave` C++ library with Python bindings
+- make the extension available to the local Python environment
 
-### 3. Run tests
-```bash
-pytest -q
-```
-
-Or use the manual test runner:
+### 3. Run the manual test runner
 ```bash
 python tests/run_manual_test.py
 ```
 
-## How It Works
+When the runner starts, choose:
+- `S` to invoke `send()`
+- `R` to invoke `receive()`
+- `Q` to quit and clean up resources
 
-- **Vendored source**: The ggwave repository is cloned into `vendor/ggwave` (as a git submodule or full copy).
-- **Python build helper**: `setup_local_deps.py` automates building the C++ extension for your platform.
-- **No system install required**: Cloning the project and running the setup script is all you need.
-- **Test shims**: `vendor/ggwave/__init__.py` and `vendor/pyaudio/__init__.py` provide minimal shims for unit tests.
+## Current implementation
 
-## Project Structure
+- `acoustics.py` contains the `acoustics` class.
+- `send()` reads `ledger` from the project root, chunks it, encodes each chunk with `ggwave`, and writes it to the output audio stream.
+- `receive()` opens an input audio stream, decodes incoming audio with `ggwave.decode()`, reassembles numbered packets, and prints the reconstructed message.
+- `cleanup()` frees the `ggwave` instance and terminates the shared `pyaudio.PyAudio()` session.
+
+### Message chunking
+
+Because the current `ggwave` receiver has a payload-size limit, `send()` splits the ledger into smaller packets before transmission.
+Each packet is prefixed with a header like `1/5|` so the receiver can reconstruct the full message.
+
+## Project structure
 
 ```
-Prototype & Testing/
-  acoustics.py              # Main module using ggwave
-  ggwave.py                 # Shim to import ggwave
-  pyaudio.py                # Shim to import pyaudio
-  setup_local_deps.py       # Cross-OS build helper
-  requirements.txt          # Test dependencies (pytest)
+Prototype & Testing/Acoustics/
+  acoustics.py
+  ledger
+  README.md
+  requirements.txt
+  setup_local_deps.py
   tests/
-    test_acoustics.py       # Unit tests (pytest)
-    run_manual_test.py      # Manual test runner
+    run_manual_test.py
   vendor/
-    ggwave/                 # ggwave C++ source (cloned)
-      bindings/python/      # Python bindings (Cython)
-    pyaudio/                # Minimal pyaudio shim
+    ggwave/
+    pyaudio/
 ```
+
+## Notes
+
+- `tests/run_manual_test.py` creates one `acoustics` instance and calls `cleanup()` once at the end.
+- `acoustics.send()` and `acoustics.receive()` both open and close audio streams, but they keep the shared `PyAudio` context and `ggwave` instance alive until cleanup.
+- If you see device errors after switching between send and receive, ensure the script is not terminating `pyaudio` or `ggwave` before the final cleanup.
 
 ## Troubleshooting
 
-**Build fails with "Cython not found"**
-- Run `python setup_local_deps.py` again; it installs Cython automatically.
+**`ImportError` for `ggwave` or `pyaudio`**
+- Run `python setup_local_deps.py` to build the local extension and install the vendored dependencies.
 
-**Tests fail with "module not found"**
-- Ensure you've run `python setup_local_deps.py` to build ggwave.
-- Check that the ggwave source is present in `vendor/ggwave`.
+**`Invalid input device` / `Invalid output device` errors**
+- Make sure the runner is not repeatedly terminating the `PyAudio` session before the test script ends.
+- Use the manual runner and quit cleanly via `Q` so `cleanup()` is called.
 
 **Need to rebuild**
-- Delete the build artifacts: `rm -rf vendor/ggwave/bindings/python/build`
-- Re-run: `python setup_local_deps.py`
+- Remove build artifacts from `vendor/ggwave/bindings/python/build`
+- Re-run `python setup_local_deps.py`
