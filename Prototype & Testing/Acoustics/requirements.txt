@@ -1,5 +1,7 @@
 # Test framework
 pytest
+pyaudio
+ggwave
 
 # Build dependencies for ggwave C++, and pyaudio extensions
 # These are needed for the initial build only
