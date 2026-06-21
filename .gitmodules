@@ -1,0 +1,6 @@
+[submodule "Prototype & Testing/Acoustics/vendor/ggwave"]
+	path = Prototype & Testing/Acoustics/vendor/ggwave
+	url = https://github.com/ggerganov/ggwave.git
+[submodule "Prototype & Testing/Acoustics/vendor/pyaudio"]
+	path = Prototype & Testing/Acoustics/vendor/pyaudio
+	url = https://github.com/CristiFati/pyaudio.git
