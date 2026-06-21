@@ -80,29 +80,19 @@ Ingests native accelerometer, gyroscope, and touchscreen data streams to train l
 1. Clone the repository:
 ```bash
 
-```
-
-
-
 git clone https://github.com/Queen-Esther06/Project-OKE-OJA.git
 cd Project-OKE-OJA
 
 ```
+
 2. Run isolated trial tests for the acoustic data transfer component:
-   ```bash
+```bash
+
 cd "Prototype & Testing\Acoustics" && python tests\run_manual_test.py
 
 ```
 
 3. Initialize the telemetry data capture baseline compilation:
 ```bash
-
-```
-
-
-
-
-
-```
 
 ```
