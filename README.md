@@ -21,22 +21,7 @@ The protocol handles trade processing across a multi-layered offline infrastruct
 3. **Redundancy Layer (BLE Mesh):** Fallback mechanism that automatically routes payload data via a local Bluetooth Low Energy Mesh network if high ambient market noise interrupts the acoustic channel.
 4. **Deferred Settlement:** Stores signed ledger states within the device's localized secure cryptographic enclave, batch-syncing to the OPay central core only during a cellular resumption event.
 
-```
- [Merchant Node] --(NFC Tap)--> [Customer Node]
-        |                              |
-        v                              v
-  (AcousticDT Payload) ----> (Local Sound Transmission)
-        |                              |
-        +---[Noise Interruption]-------> (BLE Mesh Fallback Route)
-                                               |
-                                               v
-                                    [Local Secure Enclave]
-                                               |
-                                    (Cellular Resumption)
-                                               v
-                                   [OPay Core Multi-Sig Ledger]
-
-```
+<img width="722" height="414" alt="Runtime implementation flowchart" src="https://github.com/user-attachments/assets/8f37ef6e-b611-41b8-be1f-0ccea962fb03" />
 
 ---
 
